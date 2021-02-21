@@ -1,0 +1,10 @@
+version: '3'
+services:
+  dobby:
+    container_name: dobby
+    build:
+      context: .
+    volumes:
+      - ./exchange/:/dobby/exchange
+
+    restart: unless-stopped
