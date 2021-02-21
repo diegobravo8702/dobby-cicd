@@ -1,6 +1,8 @@
 #! /bin/bash
 
-ENV="DEV"
+
+#ENV="DEV"
+ENV="PROD"
 
 [[ $ENV == "DEV" ]] && SCRIPT_NAME="cron-dev"                      || SCRIPT_NAME="cron-prod"
 [[ $ENV == "DEV" ]] && PATH_GIT="../git"                           || PATH_GIT="/dobby/git"
@@ -39,19 +41,19 @@ function git_clone {
 function git_pull {
 
 	log "git reset --hard HEAD ..."
-	git -C ${PATH_GIT}/ reset --hard HEAD
+	git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ reset --hard HEAD
 	log "git clean -xffd ..."
-	git -C ${PATH_GIT}/ clean -xffd
+	git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ clean -xffd
 
-	log "move to branch [${GIT_BRANCH}]..."
-	git -C ${PATH_GIT}/ checkout ${GIT_BRANCH}
+	log "move to branch [${GIT_BRANCH}/${GIT_REPOSITORY_NAME}]..."
+	git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ checkout ${GIT_BRANCH}
 
 	log "git pull ..."
-	git -C ${PATH_GIT}/ pull
+	git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ pull
 }
 
 function git_current_commit_hash {
-	echo $(git -C ${PATH_GIT}/ rev-parse HEAD)
+	echo $(git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ rev-parse HEAD)
 }
 
 function log {
@@ -100,7 +102,7 @@ function analize_repository {
 
     # se requiere que los repositorios contenga los 3 parametros requeridos
     GIT_REPOSITORY_URL=$(cat ${PATH_REPOS} | jq .[${index}].git_repository_url | tr -d '"')
-    GIT_REPOSITORY_NAME=$(cat ${PATH_REPOS} | jq .[${index}].git_repository_name  | tr -d '"')
+    GIT_REPOSITORY_NAME=$(cat ${PATH_REPOS} | jq .[${index}].git_repository_name  | tr -d '"' | tr -d '/')
     GIT_BRANCH=$(cat ${PATH_REPOS} | jq .[${index}].git_branch  | tr -d '"')
     GIT_TOKEN=$(cat ${PATH_REPOS} | jq .[${index}].git_token  | tr -d '"')
     
@@ -114,10 +116,10 @@ function analize_repository {
     # VERIFICANDO RUTA PARA FUENTES
     # si esta ya existe se hara el proceso de comparacion de hashes
     # en caso de no existir se crea el directorio y se hara el clone del proyecto
-    if [ -d ${PATH_GIT}/ ]; then
+    if [ -d ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ ]; then
         log "Git verification - Directory exists: ${PATH_GIT}/"
 
-        if [ "$(ls -A ${PATH_GIT}/)" ]; then 
+        if [ "$(ls -A ${PATH_GIT}/${GIT_REPOSITORY_NAME}/)" ]; then 
             log "Git verification - Directory Not Empty"
 
             # Moverse a la rama
@@ -136,9 +138,9 @@ function analize_repository {
 
         fi
     else
-        log "Git verification - Path don't exists: ${PATH_GIT}/"
+        log "Git verification - Path don't exists: ${PATH_GIT}/${GIT_REPOSITORY_NAME}/"
         log "Git verification - Making directory ..."
-        mkdir -p ${PATH_GIT}/
+        mkdir -p ${PATH_GIT}/${GIT_REPOSITORY_NAME}/
         log "Git verification - cloning ..."
         git_clone
 
