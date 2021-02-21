@@ -95,23 +95,32 @@ function log {
 #    fi
 #
 #}
+function reset_git_variables {
+    GIT_REPOSITORY_URL=""
+    GIT_REPOSITORY_NAME=""
+    GIT_BRANCH=""
+    GIT_TOKEN=""
+}
 
 function analize_repository {
     index=$1
     #cat ${PATH_REPOS} | jq  ".[${index}]"
 
-    # se requiere que los repositorios contenga los 3 parametros requeridos
+    # se requiere que los repositorios contenga los 4 parametros requeridos
     GIT_REPOSITORY_URL=$(cat ${PATH_REPOS} | jq .[${index}].git_repository_url | tr -d '"')
     GIT_REPOSITORY_NAME=$(cat ${PATH_REPOS} | jq .[${index}].git_repository_name  | tr -d '"' | tr -d '/')
     GIT_BRANCH=$(cat ${PATH_REPOS} | jq .[${index}].git_branch  | tr -d '"')
     GIT_TOKEN=$(cat ${PATH_REPOS} | jq .[${index}].git_token  | tr -d '"')
     
+    #log "GIT_REPOSITORY_URL: [${GIT_REPOSITORY_URL}]"
+    #log "GIT_REPOSITORY_NAME: [${GIT_REPOSITORY_NAME}]"
+    #log "GIT_BRANCH: [${GIT_BRANCH}]"
+    #log "GIT_TOKEN: [${GIT_TOKEN}]"
 
-    log "GIT_REPOSITORY_URL: [${GIT_REPOSITORY_URL}]"
-    log "GIT_REPOSITORY_NAME: [${GIT_REPOSITORY_NAME}]"
-    log "GIT_BRANCH: [${GIT_BRANCH}]"
-    log "GIT_TOKEN: [${GIT_TOKEN}]"
-
+    [[ -z "$GIT_REPOSITORY_URL" ]]  && log "ERROR - parametro vacio - git_repository_url"
+    [[ -z "$GIT_REPOSITORY_NAME" ]] && log "ERROR - parametro vacio - git_repository_name"
+    [[ -z "$GIT_BRANCH" ]]          && log "ERROR - parametro vacio - git_branch"
+    [[ -z "$GIT_TOKEN" ]]           && log "ERROR - parametro vacio - git_token"
 
     # VERIFICANDO RUTA PARA FUENTES
     # si esta ya existe se hara el proceso de comparacion de hashes
@@ -165,6 +174,7 @@ function loop_repositories {
 
     for i in $(seq 0 $((count-1))); do 
         #log "estoy iterando el item [${i}]"
+        reset_git_variables
         analize_repository ${i}
     done
 }
