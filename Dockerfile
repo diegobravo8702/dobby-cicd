@@ -1,14 +1,33 @@
-FROM debian:10-slim
+#FROM debian:10-slim
+FROM debian:stretch
 
 RUN apt-get update && apt-get -y install --no-install-recommends \
+    curl \
     apt-transport-https \
     ca-certificates \
     cron \
     neovim \
     git \
     jq \
+    openjdk-8-jdk \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/* 
+
+ARG MAVEN_VERSION=3.6.3
+ARG USER_HOME_DIR="/root"
+ARG BASE_URL=https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries
+
+RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
+ && curl -fsSL -o /tmp/apache-maven.tar.gz ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+ && tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 \
+ && rm -f /tmp/apache-maven.tar.gz \
+ && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME /usr/share/maven
+ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
+
+# Define commonly used JAVA_HOME variable
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 
 RUN mkdir -p /dobby/scripts
 RUN mkdir -p /dobby/logs
@@ -17,6 +36,7 @@ RUN touch /dobby/logs/dobby.log
 
 COPY ./scripts/script-cron.sh /dobby/scripts/script-cron.sh
 COPY ./scripts/script-launch-cron.sh /dobby/scripts/script-launch-cron.sh
+COPY ./scripts/script-mvn.sh /dobby/scripts/script-mvn.sh
 
 RUN  find /dobby/scripts/ -name "*.sh" -exec chmod +x '{}' \;
 

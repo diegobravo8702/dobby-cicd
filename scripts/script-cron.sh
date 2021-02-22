@@ -31,11 +31,17 @@ do
     esac
 done
 
+function mvn_process {
+    log "launching mvn process ..."
+    log "command: ./script-mvn.sh -f ${PATH_GIT}/${GIT_REPOSITORY_NAME}/"
+    /dobby/scripts/script-mvn.sh -f ${PATH_GIT}/${GIT_REPOSITORY_NAME}/
+}
 
 function git_clone {
-	log "git cloning ..."
+	#log "git cloning ..."
 	log "git clone -b ${GIT_BRANCH} https://${GIT_TOKEN}@${GIT_REPOSITORY_URL} ${PATH_GIT}/${GIT_REPOSITORY_NAME}/"
 	git clone -b ${GIT_BRANCH} https://${GIT_TOKEN}@${GIT_REPOSITORY_URL} ${PATH_GIT}/${GIT_REPOSITORY_NAME}/
+    mvn_process
 }
 
 
@@ -77,12 +83,12 @@ function reset_git_variables {
 }
 
 function get_repository {
-    log "getting repository ... "
+    #log "getting repository ... "
     # VERIFICANDO RUTA PARA FUENTES
     # si esta ya existe se hara el proceso de comparacion de hashes
     # en caso de no existir se crea el directorio y se hara el clone del proyecto
     if [ -d ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ ]; then
-        log "Git verification - Directory exists: ${PATH_GIT}/"
+        #log "Git verification - Directory exists: ${PATH_GIT}/"
 
         if [ "$(ls -A ${PATH_GIT}/${GIT_REPOSITORY_NAME}/)" ]; then 
             log "Git verification - Directory Not Empty"
@@ -90,7 +96,7 @@ function get_repository {
             # Moverse a la rama
 
             GIT_HASH_BEFORE=$(git_current_commit_hash)
-            log "Git verification - pulling ..."
+            #log "Git verification - pulling ..."
             git_pull
             GIT_HASH_AFTER=$(git_current_commit_hash)
 
@@ -115,9 +121,8 @@ function get_repository {
     if [ "$GIT_HASH_BEFORE" = "$GIT_HASH_AFTER" ]; then
         log "Git verification - No changes found"
     else
-        log "Git verification - Git changes found, REALIZAR ALGO PORQUE HUBO CAMBIOS ..."
-        log "Git verification - Git changes found, INVOCANDO A buildApp ..."
-        buildApp
+        log "Git verification - Git changes found, INVOCANDO A mvn_process ..."
+        mvn_process
     fi
 }
 
@@ -154,7 +159,7 @@ function analize_repository {
     [[ -z "$GIT_BRANCH" ]]           && log "ERROR - parametro vacio - git_branch"          && GIT_ERROR=true
     [[ -z "$GIT_TOKEN" ]]            && log "ERROR - parametro vacio - git_token"           && GIT_ERROR=true
     
-    log "analizando los resultados: [${GIT_ERROR}]"
+    # log "analizando los resultados: [${GIT_ERROR}]"
     #((  $GIT_ERROR )) && log "no debe continuar porque hubo un error" && get_repository
     ( [ $GIT_ERROR == true ] && log "no debe continuar porque hubo un error" ) ||  get_repository
 
@@ -162,22 +167,13 @@ function analize_repository {
 
 function loop_repositories {
     count=$(cat ${PATH_REPOS} | jq length)
-    log "repositorios encontrados : [${count}]"
+    # log "repositorios encontrados : [${count}]"
 
     for i in $(seq 0 $((count-1))); do 
-        log "estoy iterando el item [${i}]"
+        #log "estoy iterando el item [${i}]"
         reset_git_variables
         analize_repository ${i}
     done
 }
 
-function buildApp {
-	log "building app"
-	# se mueve 
-	# /home/diegobravo_dev/code/environment/temp/git
-	#/bin/bash PATH_GIT./build.sh
-	#mvn -B dependency:resolve dependency:resolve-plugins
-}
-
-log "revisando ..."
 loop_repositories
