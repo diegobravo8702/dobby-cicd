@@ -41,18 +41,23 @@ COPY ./scripts/script-mvn.sh /dobby/scripts/script-mvn.sh
 RUN  find /dobby/scripts/ -name "*.sh" -exec chmod +x '{}' \;
 
 RUN (crontab -l ; echo "\n\
-  * * * * * /etc/.profile;           /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
-  * * * * * /etc/.profile; sleep 10; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
-  * * * * * /etc/.profile; sleep 20; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
-  * * * * * /etc/.profile; sleep 30; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
-  * * * * * /etc/.profile; sleep 40; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
-  * * * * * /etc/.profile; sleep 50; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
+  5 * * * * /etc/.profile;           /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
 \n") | crontab
+
+# RUN (crontab -l ; echo "\n\
+#   * * * * * /etc/.profile;           /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
+#   * * * * * /etc/.profile; sleep 10; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
+#   * * * * * /etc/.profile; sleep 20; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
+#   * * * * * /etc/.profile; sleep 30; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
+#   * * * * * /etc/.profile; sleep 40; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
+#   * * * * * /etc/.profile; sleep 50; /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
+# \n") | crontab
 
 RUN echo 'alias log="tail -f /dobby/logs/dobby.log"' >> ~/.bashrc
 RUN echo 'alias cdgit="cd /dobby/git; ls -lah"' >> ~/.bashrc
 RUN echo 'alias cdscripts="cd /dobby/scripts; ls -lah"' >> ~/.bashrc
 RUN echo 'alias cdlogs="cd /dobby/logs; ls -lah"' >> ~/.bashrc
+RUN echo 'alias build="cd /dobby/scripts/; ./script-cron.sh"' >> ~/.bashrc
 
 RUN echo "echo \"\n\
 MMMMMMMMMMMMMMMMMMMMWKo::,.         .;oOXWMMMMMMMMMMMMMMMMMM\n\
