@@ -4,6 +4,7 @@ FROM debian:buster
 
 RUN apt-get update && apt-get -y install --no-install-recommends \
     curl \
+    wget \
     apt-transport-https \
     ca-certificates \
     cron \
@@ -31,6 +32,19 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 # Define commonly used JAVA_HOME variable
 #ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 ENV JAVA_HOME /usr/lib/jvm/default-java/
+
+#wildfly
+RUN apt-get update
+RUN groupadd -r wildfly
+RUN useradd -r -g wildfly -d /opt/wildfly -s /sbin/nologin wildfly
+RUN wget https://download.jboss.org/wildfly/22.0.1.Final/wildfly-preview-22.0.1.Final.tar.gz -P /tmp
+RUN tar xf /tmp/wildfly-preview-22.0.1.Final.tar.gz -C /opt/
+RUN ln -s /opt/wildfly-preview-22.0.1.Final /opt/wildfly
+RUN mkdir -p /etc/wildfly
+RUN cp /opt/wildfly-preview-22.0.1.Final/docs/contrib/scripts/systemd/wildfly.conf /etc/wildfly/
+RUN cp /opt/wildfly/docs/contrib/scripts/systemd/launch.sh /opt/wildfly/bin/
+RUN sh -c 'chmod +x /opt/wildfly/bin/*.sh'
+RUN cp /opt/wildfly/docs/contrib/scripts/systemd/wildfly.service /etc/systemd/system/
 
 RUN mkdir -p /dobby/scripts
 RUN mkdir -p /dobby/logs

@@ -4,7 +4,12 @@ services:
     container_name: dobby
     build:
       context: .
+    ports:
+      - '8080:8080'
+      - '9990:9990'
     volumes:
       - ./exchange/:/dobby/exchange
 
     restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
