@@ -1,5 +1,6 @@
 #FROM debian:10-slim
-FROM debian:stretch
+#FROM debian:stretch
+FROM debian:buster
 
 RUN apt-get update && apt-get -y install --no-install-recommends \
     curl \
@@ -9,7 +10,8 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     neovim \
     git \
     jq \
-    openjdk-8-jdk \
+    #openjdk-8-jdk \
+    default-jdk \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/* 
 
@@ -27,7 +29,8 @@ ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
 # Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+#ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+ENV JAVA_HOME /usr/lib/jvm/default-java/
 
 RUN mkdir -p /dobby/scripts
 RUN mkdir -p /dobby/logs
@@ -66,10 +69,10 @@ MMMMMMMMMMMMMNOxxc.                       .:dOXMMMMMMMMMMMMM\n\
 MMMMMMMMMMMNx;.                                :dXWMMMMMMMMM\n\
 MMMMMMMMMNk,                                      dXWMMMMMMM     puede utilizar estos comandos rápidos:\n\
 MMMMMMMMXl.                                        ;0MMMMMMM\n\
-MMMMMMMNd.                                         .lXMMMMMM        --> [log] <--       para ver los logs\n\
-MMMMMMMO.                                           .xMMMMMM       --> [cdgit] <--      para moverse y ver el contenido de la carpeta con los repositorios descargados\n\
-MMMMMMMO.  .;,.                                ;;;  .xMMMMMM      --> [cdscripts] <--   para moverse y ver el contenido de la carpeta de scripts\n\
-MMMMMMMXx:lKWWKx:...                     ..:dkXWWWXkkXMMMMMM       --> [cdlogs] <--     para moverse y ver el contenido de la carpeta de logs\n\
+MMMMMMMNd.                                         .lXMMMMMM        log        <--       para ver los logs\n\
+MMMMMMMO.                                           .xMMMMMM        cdgit      <--      para moverse y ver el contenido de la carpeta con los repositorios descargados\n\
+MMMMMMMO.  .;,.                                ;;;  .xMMMMMM        cdscripts  <--   para moverse y ver el contenido de la carpeta de scripts\n\
+MMMMMMMXx:lKWWKx:...                     ..:dkXWWWXkkXMMMMMM        cdlogs     <--     para moverse y ver el contenido de la carpeta de logs\n\
 MMMMMMMMWNWMMMMMWXX0l.                .:xKXWMMMMMMMMMMMMMMMM\n\
 MMMMMMMMMMMMMMMMMMMMWO               .oKNXKKNWMMMMMMMMMMMMMM\n\
 MMMMMMMMMMMMNKKNNK00Od.              . ;, .. lKMMMMMMMMMMMMM\n\
