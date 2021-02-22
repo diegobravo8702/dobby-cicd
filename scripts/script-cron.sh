@@ -18,6 +18,8 @@ GIT_REPOSITORY_NAME=""
 GIT_BRANCH=""
 GIT_TOKEN=""
 
+GIT_ERROR=false
+
 
 # s: script name
 # l: logs folder path
@@ -40,15 +42,15 @@ function git_clone {
 
 function git_pull {
 
-	log "git reset --hard HEAD ..."
+	#log "git reset --hard HEAD ..."
 	git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ reset --hard HEAD
-	log "git clean -xffd ..."
+	#log "git clean -xffd ..."
 	git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ clean -xffd
 
-	log "move to branch [${GIT_BRANCH}/${GIT_REPOSITORY_NAME}]..."
+	#log "move to branch [${GIT_BRANCH}/${GIT_REPOSITORY_NAME}]..."
 	git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ checkout ${GIT_BRANCH}
 
-	log "git pull ..."
+	#log "git pull ..."
 	git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ pull
 }
 
@@ -66,62 +68,16 @@ function log {
 	echo ${currentDate}" | "${SCRIPT_NAME} " | "$1 >> ${PATH_LOG}/${LOG_FILE}
 }
 
-## TODO: validar si los campos son nulos
-#function analize_repository {
-#    index=$1
-#    echo "-------------------------------------------"
-#    echo "index $index"
-#    #cat ${PATH_REPOS} | jq  ".[${index}]"
-#
-#    # se requiere que los repositorios contenga los 3 parametros requeridos
-#    git_repository=$(cat ${PATH_REPOS} | jq ".[${index}].git_repository")
-#    git_branch=$(cat ${PATH_REPOS} | jq ".[${index}].git_branch")
-#    git_token=$(cat ${PATH_REPOS} | jq ".[${index}].git_token")
-#    log "git_repository: [${git_repository}]"
-#    log "git_branch: [${git_branch}]"
-#    log "git_token: [${git_token}]"
-#
-#    [ ! -n "${git_repository}" ] && echo "git_repository Not NULL" || echo "git_repository NULL"
-#
-#    if [ -z "$git_repository" ]
-#    then
-#        echo "\$git_repository is empty [${git_repository}]"
-#    else
-#        echo "\$git_repository is NOT empty [${git_repository}]"
-#    fi
-#
-#    if [ -n "${git_repository+set}" ]; then
-#    echo "JAIL is set, possibly to the empty string"
-#    fi
-#
-#}
 function reset_git_variables {
     GIT_REPOSITORY_URL=""
     GIT_REPOSITORY_NAME=""
     GIT_BRANCH=""
     GIT_TOKEN=""
+    GIT_ERROR=false
 }
 
-function analize_repository {
-    index=$1
-    #cat ${PATH_REPOS} | jq  ".[${index}]"
-
-    # se requiere que los repositorios contenga los 4 parametros requeridos
-    GIT_REPOSITORY_URL=$(cat ${PATH_REPOS} | jq .[${index}].git_repository_url | tr -d '"')
-    GIT_REPOSITORY_NAME=$(cat ${PATH_REPOS} | jq .[${index}].git_repository_name  | tr -d '"' | tr -d '/')
-    GIT_BRANCH=$(cat ${PATH_REPOS} | jq .[${index}].git_branch  | tr -d '"')
-    GIT_TOKEN=$(cat ${PATH_REPOS} | jq .[${index}].git_token  | tr -d '"')
-    
-    #log "GIT_REPOSITORY_URL: [${GIT_REPOSITORY_URL}]"
-    #log "GIT_REPOSITORY_NAME: [${GIT_REPOSITORY_NAME}]"
-    #log "GIT_BRANCH: [${GIT_BRANCH}]"
-    #log "GIT_TOKEN: [${GIT_TOKEN}]"
-
-    [[ -z "$GIT_REPOSITORY_URL" ]]  && log "ERROR - parametro vacio - git_repository_url"
-    [[ -z "$GIT_REPOSITORY_NAME" ]] && log "ERROR - parametro vacio - git_repository_name"
-    [[ -z "$GIT_BRANCH" ]]          && log "ERROR - parametro vacio - git_branch"
-    [[ -z "$GIT_TOKEN" ]]           && log "ERROR - parametro vacio - git_token"
-
+function get_repository {
+    log "getting repository ... "
     # VERIFICANDO RUTA PARA FUENTES
     # si esta ya existe se hara el proceso de comparacion de hashes
     # en caso de no existir se crea el directorio y se hara el clone del proyecto
@@ -163,8 +119,44 @@ function analize_repository {
         log "Git verification - Git changes found, INVOCANDO A buildApp ..."
         buildApp
     fi
+}
 
+function analize_repository {
+    index=$1
+    #cat ${PATH_REPOS} | jq  ".[${index}]"
 
+    # se requiere que los repositorios contenga los 4 parametros requeridos
+    GIT_REPOSITORY_URL=$(cat ${PATH_REPOS} | jq .[${index}].git_repository_url | tr -d '"')
+    GIT_REPOSITORY_NAME=$(cat ${PATH_REPOS} | jq .[${index}].git_repository_name  | tr -d '"' | tr -d '/')
+    GIT_BRANCH=$(cat ${PATH_REPOS} | jq .[${index}].git_branch  | tr -d '"')
+    GIT_TOKEN=$(cat ${PATH_REPOS} | jq .[${index}].git_token  | tr -d '"')
+    GIT_ERROR=false
+    
+    #log "GIT_REPOSITORY_URL: [${GIT_REPOSITORY_URL}]"
+    #log "GIT_REPOSITORY_NAME: [${GIT_REPOSITORY_NAME}]"
+    #log "GIT_BRANCH: [${GIT_BRANCH}]"
+    #log "GIT_TOKEN: [${GIT_TOKEN}]"
+
+    # -z string - True if the string length is zero.
+    # -n string - True if the string length is non-zero.
+
+    # TODO combinar las dos validaciones en una sola linea
+
+    # notificando si el parametro no se recibió
+    [[ "$GIT_REPOSITORY_URL" == "null" ]]  && log "ERROR - parametro no recibido - git_repository_url"  && GIT_ERROR=true
+    [[ "$GIT_REPOSITORY_NAME" == "null" ]] && log "ERROR - parametro no recibido - git_repository_name" && GIT_ERROR=true
+    [[ "$GIT_BRANCH" == "null" ]]          && log "ERROR - parametro no recibido - git_branch"          && GIT_ERROR=true
+    [[ "$GIT_TOKEN" == "null" ]]           && log "ERROR - parametro no recibido - git_token"           && GIT_ERROR=true
+
+    # notificando error cuando el parametro existe pero esta vacio
+    [[ -z "$GIT_REPOSITORY_URL" ]]   && log "ERROR - parametro vacio - git_repository_url"  && GIT_ERROR=true
+    [[ -z "$GIT_REPOSITORY_NAME" ]]  && log "ERROR - parametro vacio - git_repository_name" && GIT_ERROR=true
+    [[ -z "$GIT_BRANCH" ]]           && log "ERROR - parametro vacio - git_branch"          && GIT_ERROR=true
+    [[ -z "$GIT_TOKEN" ]]            && log "ERROR - parametro vacio - git_token"           && GIT_ERROR=true
+    
+    log "analizando los resultados: [${GIT_ERROR}]"
+    #((  $GIT_ERROR )) && log "no debe continuar porque hubo un error" && get_repository
+    ( [ $GIT_ERROR == true ] && log "no debe continuar porque hubo un error" ) ||  get_repository
 
 }
 
@@ -173,7 +165,7 @@ function loop_repositories {
     log "repositorios encontrados : [${count}]"
 
     for i in $(seq 0 $((count-1))); do 
-        #log "estoy iterando el item [${i}]"
+        log "estoy iterando el item [${i}]"
         reset_git_variables
         analize_repository ${i}
     done
