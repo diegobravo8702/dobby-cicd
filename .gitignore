@@ -1,2 +1,8 @@
 logs/
 exchange/repositories.js
+exchange/target*
+deployments/*
+modules/*
+standalone/*
+*.ear
+*.war

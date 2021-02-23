@@ -1,0 +1,4 @@
+
+batch
+deploy /tmp/exchange/to-deploy/ci-ear-0.0.1.ear --force
+run-batch

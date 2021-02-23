@@ -8,6 +8,7 @@ ENV="PROD"
 [[ $ENV == "DEV" ]] && PATH_GIT="../git"                           || PATH_GIT="/dobby/git"
 [[ $ENV == "DEV" ]] && PATH_LOG="../logs"                          || PATH_LOG="/dobby/logs"
 [[ $ENV == "DEV" ]] && LOG_FILE="dobby.log"                        || LOG_FILE="dobby.log"
+[[ $ENV == "DEV" ]] && PATH_EXC="../exchange"                  || PATH_EXC="/dobby/exchange"
 [[ $ENV == "DEV" ]] && PATH_REPOS="../exchange/repositories.js"    || PATH_REPOS="/dobby/exchange/repositories.js"
 
 #[[ $ENV == "DEV" ]] && ="" || echo =""
@@ -33,8 +34,8 @@ done
 
 function mvn_process {
     log "launching mvn process ..."
-    log "command: ./script-mvn.sh -f ${PATH_GIT}/${GIT_REPOSITORY_NAME}/"
-    /dobby/scripts/script-mvn.sh -f ${PATH_GIT}/${GIT_REPOSITORY_NAME}/
+    log "command: ./script-mvn.sh -f ${PATH_GIT}/${GIT_REPOSITORY_NAME}"
+    /dobby/scripts/script-mvn.sh -p ${PATH_GIT}/${GIT_REPOSITORY_NAME} -n ${GIT_REPOSITORY_NAME} -x $PATH_EXC
 }
 
 function git_clone {

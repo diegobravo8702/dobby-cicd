@@ -1,25 +1,19 @@
-version: '3'
-services:
-  dobby:
-    container_name: dobby
-    build:
-      context: .
-    volumes:
-      - ./exchange/:/dobby/exchange
+version: "3"
 
-    restart: unless-stopped
+services:
   wildfly:
-    container_name: wildfly
-    build:
-      context: ./wildfly
+    #image: 'jboss/wildfly'
+    build: .
     ports:
       - '8080:8080'
       - '9990:9990'
     environment:
       - WILDFLY_PASSWORD=password
     volumes:
-      - "./exchange/:/tmp/exchange"
-      #- "./deployments/:/opt/jboss/wildfly/standalone/deployments"
+      - "./deployments/:/opt/jboss/wildfly/standalone/deployments"
       #- "./modules/system/layers/base/com/microsoft/sqlserver/main/:/opt/jboss/wildfly/modules/system/layers/base/com/microsoft/sqlserver/main/"
       #- "./standalone/configuration/standalone.xml/:/opt/jboss/wildfly/standalone/configuration/standalone.xml"
+
+
+      
 
