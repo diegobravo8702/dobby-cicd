@@ -44,7 +44,7 @@ COPY ./scripts/script-mvn.sh /dobby/scripts/script-mvn.sh
 RUN  find /dobby/scripts/ -name "*.sh" -exec chmod +x '{}' \;
 
 # RUN (crontab -l ; echo "\n\
-#   10 * * * * /etc/.profile;           /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
+#   5 * * * * /etc/.profile;           /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
 # \n") | crontab
 
 RUN (crontab -l ; echo "\n\
