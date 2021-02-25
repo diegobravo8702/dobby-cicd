@@ -8,8 +8,9 @@ ENV="PROD"
 [[ $ENV == "DEV" ]] && PATH_GIT="../git"                           || PATH_GIT="/dobby/git"
 [[ $ENV == "DEV" ]] && PATH_LOG="../logs"                          || PATH_LOG="/dobby/logs"
 [[ $ENV == "DEV" ]] && LOG_FILE="dobby.log"                        || LOG_FILE="dobby.log"
-[[ $ENV == "DEV" ]] && PATH_EXC="../exchange"                  || PATH_EXC="/dobby/exchange"
+[[ $ENV == "DEV" ]] && PATH_EXC="../exchange"                      || PATH_EXC="/dobby/exchange"
 [[ $ENV == "DEV" ]] && PATH_REPOS="../exchange/repositories.js"    || PATH_REPOS="/dobby/exchange/repositories.js"
+[[ $ENV == "DEV" ]] && STATUS_FILE="status"                        || STATUS_FILE="status"
 
 #[[ $ENV == "DEV" ]] && ="" || echo =""
 
@@ -20,6 +21,7 @@ GIT_BRANCH=""
 GIT_TOKEN=""
 
 GIT_ERROR=false
+GIT_RECENT_COMMENT=""
 
 
 # s: script name
@@ -35,7 +37,14 @@ done
 function mvn_process {
     log "launching mvn process ..."
     log "command: ./script-mvn.sh -f ${PATH_GIT}/${GIT_REPOSITORY_NAME}"
-    /dobby/scripts/script-mvn.sh -p ${PATH_GIT}/${GIT_REPOSITORY_NAME} -n ${GIT_REPOSITORY_NAME} -x $PATH_EXC
+
+    ##log "#A - $(git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ show-branch --no-name HEAD)"
+    ##log "#B - $(git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ show-branch --no-name HEAD | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')"
+    ##log "#C - $(git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ show-branch --no-name HEAD | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]' | cut -c1-20)"
+
+    GIT_COMMENT=$(git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ show-branch --no-name HEAD | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]' | cut -c1-20)
+
+    /dobby/scripts/script-mvn.sh -p ${PATH_GIT}/${GIT_REPOSITORY_NAME} -n ${GIT_REPOSITORY_NAME} -c $GIT_COMMENT -x $PATH_EXC -b $(echo "$GIT_BRANCH" | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]') 
 }
 
 function git_clone {
@@ -65,6 +74,10 @@ function git_current_commit_hash {
 	echo $(git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ rev-parse HEAD)
 }
 
+function git_recent_coment {
+    echo $(git -C ${PATH_GIT}/${GIT_REPOSITORY_NAME}/ show-branch --no-name HEAD | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]' | cut -c1-20)
+}
+
 function log {
 	currentDate=`date +"%Y-%m-%d %H:%M:%S %z"`
 
@@ -81,6 +94,7 @@ function reset_git_variables {
     GIT_BRANCH=""
     GIT_TOKEN=""
     GIT_ERROR=false
+    GIT_RECENT_COMMENT=""
 }
 
 function get_repository {
@@ -123,6 +137,7 @@ function get_repository {
         log "Git verification - No changes found"
     else
         log "Git verification - Git changes found, INVOCANDO A mvn_process ..."
+        GIT_RECENT_COMMENT=$(git_recent_coment)
         mvn_process
     fi
 }
@@ -137,6 +152,7 @@ function analize_repository {
     GIT_BRANCH=$(cat ${PATH_REPOS} | jq .[${index}].git_branch  | tr -d '"')
     GIT_TOKEN=$(cat ${PATH_REPOS} | jq .[${index}].git_token  | tr -d '"')
     GIT_ERROR=false
+    GIT_RECENT_COMMENT=""
     
     #log "GIT_REPOSITORY_URL: [${GIT_REPOSITORY_URL}]"
     #log "GIT_REPOSITORY_NAME: [${GIT_REPOSITORY_NAME}]"
@@ -166,15 +182,40 @@ function analize_repository {
 
 }
 
+function notificar_bloqueo {
+    log "notificando bloqueo"
+    echo "LOCK" > ${PATH_EXC}/${STATUS_FILE}
+}
+
+function notificar_desbloqueo {
+    log "notificando desbloqueo"
+    echo "UNLOCK" > ${PATH_EXC}/${STATUS_FILE}
+}
+
+function actual_status {
+    while IFS= read -r line; do
+		status=($line)
+	done < ${PATH_EXC}/${STATUS_FILE}
+    echo "${status}"
+}
+
 function loop_repositories {
+    notificar_bloqueo
     count=$(cat ${PATH_REPOS} | jq length)
     # log "repositorios encontrados : [${count}]"
+    
 
     for i in $(seq 0 $((count-1))); do 
         #log "estoy iterando el item [${i}]"
         reset_git_variables
         analize_repository ${i}
     done
+    notificar_desbloqueo
 }
 
-loop_repositories
+
+status=$(actual_status)
+
+[[ "$status" == "LOCK" ]] && echo "BLOQUEADO" || (echo "DESBLOQUEADO" && loop_repositories)
+
+

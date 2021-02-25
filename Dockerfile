@@ -43,9 +43,9 @@ COPY ./scripts/script-mvn.sh /dobby/scripts/script-mvn.sh
 
 RUN  find /dobby/scripts/ -name "*.sh" -exec chmod +x '{}' \;
 
-# RUN (crontab -l ; echo "\n\
-#   5 * * * * /etc/.profile;           /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
-# \n") | crontab
+##RUN (crontab -l ; echo "\n\
+##  10 * * * * /etc/.profile;           /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
+##\n") | crontab
 
 RUN (crontab -l ; echo "\n\
   * * * * * /etc/.profile;           /dobby/scripts/script-cron.sh >> /dobby/logs/dobby.log \n\
@@ -61,6 +61,9 @@ RUN echo 'alias cdgit="cd /dobby/git; ls -lah"' >> ~/.bashrc
 RUN echo 'alias cdscripts="cd /dobby/scripts; ls -lah"' >> ~/.bashrc
 RUN echo 'alias cdlogs="cd /dobby/logs; ls -lah"' >> ~/.bashrc
 RUN echo 'alias build="cd /dobby/scripts/; ./script-cron.sh"' >> ~/.bashrc
+RUN echo 'alias unlock="rm /dobby/exchange/status"' >> ~/.bashrc
+RUN echo 'alias status="echo [stop CTRL + c]; for i in {1..1000}; do cat /dobby/exchange/status; sleep 1; done"' >> ~/.bashrc
+
 
 RUN echo "echo \"\n\
 MMMMMMMMMMMMMMMMMMMMWKo::,.         .;oOXWMMMMMMMMMMMMMMMMMM\n\
@@ -69,13 +72,13 @@ MMMMMMMMMMMMMNOxxc.                       .:dOXMMMMMMMMMMMMM\n\
 MMMMMMMMMMMNx;.                                :dXWMMMMMMMMM\n\
 MMMMMMMMMNk,                                      dXWMMMMMMM     puede utilizar estos comandos rápidos:\n\
 MMMMMMMMXl.                                        ;0MMMMMMM\n\
-MMMMMMMNd.                                         .lXMMMMMM        $ logs        <--      para ver los logs\n\
-MMMMMMMO.                                           .xMMMMMM        $ cdgit      <--      ir a repositorios descargados\n\
-MMMMMMMO.  .;,.                                ;;;  .xMMMMMM        $ cdscripts  <--      ir a scripts\n\
-MMMMMMMXx:lKWWKx:...                     ..:dkXWWWXkkXMMMMMM        $ cdlogs     <--      ir a logs \n\
-MMMMMMMMWNWMMMMMWXX0l.                .:xKXWMMMMMMMMMMMMMMMM\n\
-MMMMMMMMMMMMMMMMMMMMWO               .oKNXKKNWMMMMMMMMMMMMMM\n\
-MMMMMMMMMMMMNKKNNK00Od.              . ;, .. lKMMMMMMMMMMMMM\n\
+MMMMMMMNd.                                         .lXMMMMMM        $ logs       :      para ver los logs\n\
+MMMMMMMO.                                           .xMMMMMM        $ cdgit      :      ir a repositorios descargados\n\
+MMMMMMMO.  .;,.                                ;;;  .xMMMMMM        $ cdscripts  :      ir a scripts\n\
+MMMMMMMXx:lKWWKx:...                     ..:dkXWWWXkkXMMMMMM        $ cdlogs     :      ir a logs \n\
+MMMMMMMMWNWMMMMMWXX0l.                .:xKXWMMMMMMMMMMMMMMMM        $ build      :      ejecutar script build a demanda\n\
+MMMMMMMMMMMMMMMMMMMMWO               .oKNXKKNWMMMMMMMMMMMMMM        $ unlock     :      elimina el archivo status\n\
+MMMMMMMMMMMMNKKNNK00Od.              . ;, .. lKMMMMMMMMMMMMM        $ status     :      muestra el contenido de status\n\
 MMMMMMMMMMWO;..;;...                         .kMMMMMMMMMMMMM\n\
 MMMMMMMMMMWl                                 .lXMMMMMMMMMMMM\n\
 MMMMMMMMMW0;                                    oXWMMMMMMMMM\n\

@@ -3,19 +3,24 @@
 #ENV="DEV"
 ENV="PROD"
 
-[[ $ENV == "DEV" ]] && SCRIPT_NAME="mvn-dev "       || SCRIPT_NAME="mvn-prod "
+[[ $ENV == "DEV" ]] && SCRIPT_NAME="mvn-dev  "       || SCRIPT_NAME="mvn-prod  "
 [[ $ENV == "DEV" ]] && PATH_LOG="../logs"           || PATH_LOG="/dobby/logs"
 [[ $ENV == "DEV" ]] && LOG_FILE="dobby.log"         || LOG_FILE="dobby.log"
 
 # p: pom path
 # x: exchange dir
 # n: project name
-while getopts p:x:n: flag
+# b: branch
+# c: comment
+
+while getopts p:x:n:b:c: flag
 do
     case "${flag}" in
         p) POM_PATH=${OPTARG};;
 		x) EXC_PATH=${OPTARG};;
 		n) PROJECT_NAME=${OPTARG};;
+		b) GIT_BRANCH=${OPTARG};;
+		c) GIT_COMMENT=${OPTARG};;
     esac
 done
 
@@ -31,14 +36,18 @@ function log {
 }
 
 log "mvn - 00 - MVN_PATH: [${POM_PATH}]"
+log "mvn - 00 - EXC_PATH: [${EXC_PATH}]"
+log "mvn - 00 - PROJECT_NAME: [${PROJECT_NAME}]"
+log "mvn - 00 - GIT_BRANCH: [${GIT_BRANCH}]"
+log "mvn - 00 - GIT_COMMENT: [${GIT_COMMENT}]"
 
 log "mvn - 01 - clean - starting" &&
-mvn -f $POM_PATH clean &&
+#mvn -f $POM_PATH clean &&
 log "mvn - 01 - clean - finished"
 
-#log "mvn - 02 - resolve dependency - starting" &&
-#mvn -f $POM_PATH -B dependency:resolve dependency:resolve-plugins &&
-#log "mvn - 02 - resolve dependency - finished"
+###log "mvn - 02 - resolve dependency - starting" &&
+###mvn -f $POM_PATH -B dependency:resolve dependency:resolve-plugins &&
+###log "mvn - 02 - resolve dependency - finished"
 
 fecha=`date +"%Y%m%d-%H%M%S"`
 
@@ -47,8 +56,8 @@ mvn -f $POM_PATH clean install -e &&
 log "mvn - 02 - install - finished" 
 
 log "mvn - 03 - copiando - origen:  [$POM_PATH/*ear/target]" &&
-log "mvn - 03 - copiando - destino: [$EXC_PATH/target_$PROJECT_NAME_$fecha]" &&
-cp -r $POM_PATH/*ear/target $EXC_PATH/target_${PROJECT_NAME}_$fecha &&
+log "mvn - 03 - copiando - destino: [$EXC_PATH/target_${PROJECT_NAME}_${GIT_BRANCH}_$fecha_${GIT_COMMENT}]" &&
+cp -r $POM_PATH/*ear/target $EXC_PATH/target_${PROJECT_NAME}_${fecha}_${GIT_BRANCH}_${GIT_COMMENT} &&
 log "mvn - 03 - copiando - listo" 
 
 log "mvn - 04 - copiando - origen:  [$POM_PATH/*ear/target/*.ear]" &&

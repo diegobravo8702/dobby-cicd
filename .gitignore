@@ -1,8 +1,10 @@
-logs/
+deployments/*
 exchange/repositories.js
 exchange/target*
-deployments/*
+exchange/to-deploy/*
+logs/
 modules/*
 standalone/*
+status
 *.ear
 *.war
