@@ -23,3 +23,11 @@ services:
       #- "./modules/system/layers/base/com/microsoft/sqlserver/main/:/opt/jboss/wildfly/modules/system/layers/base/com/microsoft/sqlserver/main/"
       #- "./standalone/configuration/standalone.xml/:/opt/jboss/wildfly/standalone/configuration/standalone.xml"
 
+  keycloack:
+    container_name: keycloack
+      context: ./keycloack
+    ports:
+      - '8090:8080'
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin

@@ -4,6 +4,7 @@ FROM debian:buster
 
 RUN apt-get update && apt-get -y install --no-install-recommends \
     curl \
+    wget \
     apt-transport-https \
     ca-certificates \
     cron \
@@ -31,6 +32,12 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 # Define commonly used JAVA_HOME variable
 #ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 ENV JAVA_HOME /usr/lib/jvm/default-java/
+
+
+# wkhtmltopdf
+RUN apt update && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb \
+ && apt install -y ./wkhtmltox_0.12.6-1.buster_amd64.deb
+
 
 RUN mkdir -p /dobby/scripts
 RUN mkdir -p /dobby/logs
