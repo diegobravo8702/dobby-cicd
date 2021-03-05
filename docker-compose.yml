@@ -25,7 +25,7 @@ services:
 
   keycloack:
     container_name: keycloack
-      context: ./keycloack
+    image: quay.io/keycloak/keycloak:12.0.4
     ports:
       - '8090:8080'
     environment:
