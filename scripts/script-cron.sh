@@ -23,6 +23,11 @@ GIT_TOKEN=""
 GIT_ERROR=false
 GIT_RECENT_COMMENT=""
 
+# usada para detectar si hubo cambios en alguno de los repositorios, en caso de haberlos se modificara el archivo en wildfly que hace el despliegue
+
+BACKUP_BATCH_DEPLOY=""
+HUBO_CAMBIOS="NO"
+
 
 # s: script name
 # l: logs folder path
@@ -33,6 +38,29 @@ do
         l) PATH_LOG=${OPTARG};;
     esac
 done
+
+
+    
+function batch_deploy_cli_backup {
+    log "batch_deploy_cli_backup()"
+    cp $PATH_EXC/batch-deploy.cli $PATH_EXC/batch-deploy.cli.back
+}
+
+function batch_deploy_cli_restore {
+    log "batch_deploy_cli_restore()"
+    cp $PATH_EXC/batch-deploy.cli.back $PATH_EXC/batch-deploy.cli
+}
+
+function batch_deploy_cli_new_start {
+    log "batch_deploy_cli_new_start()"
+    echo ""      >  $PATH_EXC/batch-deploy.cli &&
+    echo "batch" >> $PATH_EXC/batch-deploy.cli
+}
+
+function batch_deploy_cli_new_end {
+    log "batch_deploy_cli_new_end()"
+    echo "run-batch" >> $PATH_EXC/batch-deploy.cli
+}
 
 function mvn_process {
     log "launching mvn process ..."
@@ -120,6 +148,7 @@ function get_repository {
         else 
             log "Git verification - Directory Empty"
             log "Git verification - cloning ..."
+            HUBO_CAMBIOS="SI"
             git_clone
 
         fi
@@ -128,6 +157,7 @@ function get_repository {
         log "Git verification - Making directory ..."
         mkdir -p ${PATH_GIT}/${GIT_REPOSITORY_NAME}/
         log "Git verification - cloning ..."
+        HUBO_CAMBIOS="SI"
         git_clone
 
     fi
@@ -136,6 +166,7 @@ function get_repository {
     if [ "$GIT_HASH_BEFORE" = "$GIT_HASH_AFTER" ]; then
         log "Git verification - No changes found"
     else
+        HUBO_CAMBIOS="SI"
         log "Git verification - Git changes found, INVOCANDO A mvn_process ..."
         GIT_RECENT_COMMENT=$(git_recent_coment)
         mvn_process
@@ -203,13 +234,18 @@ function loop_repositories {
     notificar_bloqueo
     count=$(cat ${PATH_REPOS} | jq length)
     # log "repositorios encontrados : [${count}]"
-    
+    HUBO_CAMBIOS="NO"
+    batch_deploy_cli_backup
+    batch_deploy_cli_new_start
 
     for i in $(seq 0 $((count-1))); do 
         #log "estoy iterando el item [${i}]"
         reset_git_variables
         analize_repository ${i}
     done
+
+    [[ "$HUBO_CAMBIOS" == "SI" ]] && batch_deploy_cli_new_end  && echo "SI HUBO CAMBIOS - se mantiene el nuevo batch_deploy_cli" || batch_deploy_cli_restore && echo "NO HUBO CAMBIOS - se restaura el backup de batch_deploy_cli"
+
     notificar_desbloqueo
 }
 

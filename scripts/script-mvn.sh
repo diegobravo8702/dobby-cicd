@@ -76,10 +76,10 @@ EAR=$(find $POM_PATH/*ear/target/ -name "*.ear" -printf "%f\n")
 log "RESUTADO DE PRUEBA - ear:[$EAR]"
 
 [[ -n "${EAR}" ]] &&
-echo ""      >  $EXC_PATH/batch-deploy.cli &&
-echo "batch" >> $EXC_PATH/batch-deploy.cli &&
-echo "deploy /tmp/exchange/to-deploy/${EAR} --force" >> $EXC_PATH/batch-deploy.cli &&
-echo "run-batch" >> $EXC_PATH/batch-deploy.cli
+# echo ""      >  $EXC_PATH/batch-deploy.cli &&
+# echo "batch" >> $EXC_PATH/batch-deploy.cli &&
+echo "deploy /tmp/exchange/to-deploy/${EAR} --force" >> $EXC_PATH/batch-deploy.cli
+# echo "run-batch" >> $EXC_PATH/batch-deploy.cli
 
 
 
