@@ -44,5 +44,21 @@ services:
       - "./data/:/var/opt/mssql/data/"
       - "./log/:/var/opt/mssql/log/"
       - "./secrets/:/var/opt/mssql/secrets/"
+  mariadb:
+    container_name: mariadb
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    volumes:
+      - mydb-db:/var/lib/mysql
 
-
+volumes:
+  mydb-db:
