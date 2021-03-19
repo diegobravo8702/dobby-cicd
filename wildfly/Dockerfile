@@ -14,3 +14,4 @@ RUN /tmp/config.sh
 #
 
 RUN echo 'alias deploy="/tmp/exchange/deploy.sh"' >> ~/.bashrc
+RUN echo 'alias deployforce="/tmp/exchange/deploy-force.sh"' >> ~/.bashrc
