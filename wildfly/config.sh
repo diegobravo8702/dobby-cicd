@@ -3,13 +3,13 @@
 JBOSS_HOME=/opt/jboss/wildfly
 JBOSS_CLI=$JBOSS_HOME/bin/jboss-cli.sh
 JBOSS_MODE=${1:-"standalone"}
-JBOSS_CONFIG=${2:-"$JBOSS_MODE.xml"}
+JBOSS_CONFIG=${2:-"$JBOSS_MODE.xml -Djavax.net.ssl.trustStore=\"/opt/jboss/wildfly/keystorage\" -Djavax.net.ssl.trustStorePassword=\"changeit\""}
 
 function wait_for_wildfly() {
   until `$JBOSS_CLI -c "ls /deployment" &> /dev/null`; do
     sleep 10
   done
-}
+}	
 
 echo "==> Starting WildFly..."
 $JBOSS_HOME/bin/$JBOSS_MODE.sh -c $JBOSS_CONFIG > /dev/null &

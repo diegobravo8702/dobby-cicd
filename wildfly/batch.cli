@@ -2,7 +2,7 @@ batch
 
 module add --name=sqlserver.jdbc --resources=/tmp/mssql-jdbc-9.2.0.jre8.jar --dependencies=javax.api,javax.transaction.api
 /subsystem=datasources/jdbc-driver=sqlserver:add(driver-module-name=sqlserver.jdbc,driver-name=sqlserver,driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver)
-/subsystem=datasources/data-source=pn:add(jndi-name=java:/pn,enabled="true",use-java-context="true",driver-name=sqlserver,user-name=sa,password=P@ssword,validate-on-match=true,background-validation=true,connection-url="jdbc:sqlserver://34.70.247.101:14033;databaseName=PRODUCCION_NACIONAL")
-/subsystem=datasources/data-source=ci:add(jndi-name=java:/ci,enabled="true",use-java-context="true",driver-name=sqlserver,user-name=sa,password=P@ssword,validate-on-match=true,background-validation=true,connection-url="jdbc:sqlserver://34.70.247.101:14033;databaseName=COMERCIALIZADORAS_INTERNACIONALES")
+/subsystem=datasources/data-source=pn:add(jndi-name=java:/pn,enabled="true",use-java-context="true",driver-name=sqlserver,user-name=sa,password=P@ssword,validate-on-match=true,background-validation=true,connection-url="jdbc:sqlserver://34.71.5.25:14033;databaseName=PRODUCCION_NACIONAL")
+/subsystem=datasources/data-source=ci:add(jndi-name=java:/ci,enabled="true",use-java-context="true",driver-name=sqlserver,user-name=sa,password=P@ssword,validate-on-match=true,background-validation=true,connection-url="jdbc:sqlserver://34.71.5.25:14033;databaseName=COMERCIALIZADORAS_INTERNACIONALES")
 
 run-batch
