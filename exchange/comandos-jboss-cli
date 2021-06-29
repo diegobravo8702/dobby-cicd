@@ -1,8 +1,8 @@
 #OK
 /subsystem=datasources:read-resource
 #OK
-data-source add --jndi-name=java:/ci --connection-url=jdbc:sqlserver://34.70.247.101:14033;databaseName=COMERCIALIZADORAS_INTERNACIONALES --driver-name=sqlserver --user-name=sa --password=P@ssword --validate-on-match=true --background-validation=true
-data-source add --jndi-name=java:/ci --connection-url=jdbc:sqlserver://34.70.247.101:14033;databaseName=COMERCIALIZADORAS_INTERNACIONALES --driver-name=sqlserver --user-name=sa --password=P@ssword --validate-on-match=true --background-validation=true --name=ci
+data-source add --jndi-name=java:/ci --connection-url=jdbc:sqlserver://34.122.95.94:14033;databaseName=COMERCIALIZADORAS_INTERNACIONALES --driver-name=sqlserver --user-name=sa --password=P@ssword --validate-on-match=true --background-validation=true
+data-source add --jndi-name=java:/ci --connection-url=jdbc:sqlserver://34.122.95.94:14033;databaseName=COMERCIALIZADORAS_INTERNACIONALES --driver-name=sqlserver --user-name=sa --password=P@ssword --validate-on-match=true --background-validation=true --name=ci
 #OK
 deploy /opt/jboss/wildfly/standalone/deployments/ci-ear-0.0.1.ear --force
 #OK

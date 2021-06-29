@@ -77,8 +77,8 @@ function mvn_process {
 
 function git_clone {
 	#log "git cloning ..."
-	log "git clone -b ${GIT_BRANCH} https://${GIT_TOKEN}@${GIT_REPOSITORY_URL} ${PATH_GIT}/${GIT_REPOSITORY_NAME}/"
-	git clone -b ${GIT_BRANCH} https://${GIT_TOKEN}@${GIT_REPOSITORY_URL} ${PATH_GIT}/${GIT_REPOSITORY_NAME}/
+	log "git clone -b ${GIT_BRANCH} https://Corpodesarrollo:${GIT_TOKEN}@${GIT_REPOSITORY_URL} ${PATH_GIT}/${GIT_REPOSITORY_NAME}/"
+	git clone -b ${GIT_BRANCH} https://Corpodesarrollo:${GIT_TOKEN}@${GIT_REPOSITORY_URL} ${PATH_GIT}/${GIT_REPOSITORY_NAME}/
     mvn_process
 }
 

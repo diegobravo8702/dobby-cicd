@@ -1,4 +1,3 @@
-
 batch
 deploy /tmp/exchange/to-deploy/ci-ear-0.0.1.ear --force
 deploy /tmp/exchange/to-deploy/pn-ear-0.0.1.ear --force
